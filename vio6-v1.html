@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 1: Sắp xếp theo thứ tự tăng dần</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .math-expression {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .table-cell {
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .table-cell:hover {
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+        }
+        
+        .input-cell {
+            transition: all 0.3s ease;
+        }
+        
+        .input-cell input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .input-cell input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-cell.correct input {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        
+        .input-cell.incorrect input {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Navigation -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white rounded-lg shadow-md p-2 flex space-x-2">
+                <button onclick="showSlide(1)" id="slide1-btn" class="px-6 py-2 rounded-lg font-medium transition-colors bg-blue-500 text-white">
+                    Bài 1
+                </button>
+                <button onclick="showSlide(2)" id="slide2-btn" class="px-6 py-2 rounded-lg font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    Bài 2
+                </button>
+                <button onclick="showSlide(3)" id="slide3-btn" class="px-6 py-2 rounded-lg font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    Bài 3
+                </button>
+                <button onclick="showFinalSummary()" id="summary-btn" class="px-6 py-2 rounded-lg font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300 hidden">
+                    📊 Tổng kết
+                </button>
+            </div>
+        </div>
+
+        <!-- Slide 1 -->
+        <div id="slide1" class="slide">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">📊 Bài 1: Sắp xếp theo thứ tự tăng dần</h1>
+                <p class="text-gray-600 mb-4">Nhẩm giá trị các ô trong bảng, sau đó điền vào các ô dưới theo thứ tự từ nhỏ đến lớn</p>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 inline-block">
+                    <p class="text-yellow-800 font-medium">💡 Hướng dẫn: Tính giá trị từng ô, sau đó điền theo thứ tự tăng dần</p>
+                </div>
+            </div>
+
+        <!-- Original Table -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Bảng các biểu thức</h2>
+            <div class="grid grid-cols-4 md:grid-cols-5 gap-3" id="original-table">
+                <!-- Original cells will be generated here -->
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700">Tiến độ điền</span>
+                <span class="text-sm font-medium text-gray-700" id="progress-text">0/20</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Input Grid -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Điền theo thứ tự tăng dần (20 ô)</h2>
+            <div class="grid grid-cols-4 md:grid-cols-5 gap-3" id="input-grid">
+                <!-- Input cells will be generated here -->
+            </div>
+        </div>
+
+        <!-- Check Button -->
+        <div class="text-center mb-6">
+            <button id="check-btn" onclick="checkAnswers()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Kiểm tra kết quả
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden bg-white rounded-lg shadow-lg p-8 text-center">
+            <div class="mb-6">
+                <div class="text-6xl mb-4" id="result-emoji">🎉</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Kết quả</h2>
+                <p class="text-xl text-gray-600" id="score-text"></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600" id="correct-count">0</div>
+                    <div class="text-sm text-green-700">Đúng</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-red-600" id="incorrect-count">0</div>
+                    <div class="text-sm text-red-700">Sai</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600" id="percentage">0%</div>
+                    <div class="text-sm text-blue-700">Tỷ lệ đúng</div>
+                </div>
+            </div>
+            <button onclick="resetGame()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                Làm lại
+            </button>
+        </div>
+
+            <!-- Reset Button -->
+            <div class="text-center">
+                <button onclick="resetGame()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Làm lại
+                </button>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div id="slide2" class="slide hidden">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">📝 Bài 2: Điền vào chỗ trống</h1>
+                <p class="text-gray-600 mb-4">Đọc kỹ câu hỏi và điền đáp án chính xác vào ô trống</p>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 inline-block">
+                    <p class="text-green-800 font-medium">💡 Hướng dẫn: Suy nghĩ cẩn thận và điền đáp án đúng</p>
+                </div>
+            </div>
+
+            <!-- Math Problems Grid -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Các câu hỏi</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="math-problems">
+                    <!-- Math problems will be generated here -->
+                </div>
+            </div>
+
+            <!-- Progress for Slide 2 -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Tiến độ làm bài</span>
+                    <span class="text-sm font-medium text-gray-700" id="progress-text-2">0/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%" id="progress-bar-2"></div>
+                </div>
+            </div>
+
+            <!-- Check Button for Slide 2 -->
+            <div class="text-center mb-6">
+                <button id="check-btn-2" onclick="checkMathAnswers()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Kiểm tra kết quả
+                </button>
+            </div>
+
+            <!-- Results for Slide 2 -->
+            <div id="results-2" class="hidden bg-white rounded-lg shadow-lg p-8 text-center">
+                <div class="mb-6">
+                    <div class="text-6xl mb-4" id="result-emoji-2">🎉</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Kết quả</h2>
+                    <p class="text-xl text-gray-600" id="score-text-2"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600" id="correct-count-2">0</div>
+                        <div class="text-sm text-green-700">Đúng</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600" id="incorrect-count-2">0</div>
+                        <div class="text-sm text-red-700">Sai</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600" id="percentage-2">0%</div>
+                        <div class="text-sm text-blue-700">Tỷ lệ đúng</div>
+                    </div>
+                </div>
+                <button onclick="resetMathGame()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    Làm lại
+                </button>
+            </div>
+
+            <!-- Reset Button for Slide 2 -->
+            <div class="text-center">
+                <button onclick="resetMathGame()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Làm lại
+                </button>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div id="slide3" class="slide hidden">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">🧮 Bài 3: Bài tập nâng cao</h1>
+                <p class="text-gray-600 mb-4">Giải các bài toán về số tự nhiên và số La Mã</p>
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 inline-block">
+                    <p class="text-purple-800 font-medium">💡 Hướng dẫn: Đọc kỹ đề bài và tính toán cẩn thận</p>
+                </div>
+            </div>
+
+            <!-- Advanced Problems Grid -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Các câu hỏi nâng cao</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="advanced-problems">
+                    <!-- Advanced problems will be generated here -->
+                </div>
+            </div>
+
+            <!-- Progress for Slide 3 -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Tiến độ làm bài</span>
+                    <span class="text-sm font-medium text-gray-700" id="progress-text-3">0/12</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-purple-500 h-3 rounded-full transition-all duration-500" style="width: 0%" id="progress-bar-3"></div>
+                </div>
+            </div>
+
+            <!-- Check Button for Slide 3 -->
+            <div class="text-center mb-6">
+                <button id="check-btn-3" onclick="checkAdvancedAnswers()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Kiểm tra kết quả
+                </button>
+            </div>
+
+            <!-- Results for Slide 3 -->
+            <div id="results-3" class="hidden bg-white rounded-lg shadow-lg p-8 text-center">
+                <div class="mb-6">
+                    <div class="text-6xl mb-4" id="result-emoji-3">🎉</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Kết quả</h2>
+                    <p class="text-xl text-gray-600" id="score-text-3"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600" id="correct-count-3">0</div>
+                        <div class="text-sm text-green-700">Đúng</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600" id="incorrect-count-3">0</div>
+                        <div class="text-sm text-red-700">Sai</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600" id="percentage-3">0%</div>
+                        <div class="text-sm text-blue-700">Tỷ lệ đúng</div>
+                    </div>
+                </div>
+                <button onclick="resetAdvancedGame()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    Làm lại
+                </button>
+            </div>
+
+            <!-- Reset Button for Slide 3 -->
+            <div class="text-center">
+                <button onclick="resetAdvancedGame()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Làm lại
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Summary Section -->
+        <div id="final-summary" class="hidden mt-12">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-xl p-8 text-white text-center mb-8">
+                <div class="text-6xl mb-4" id="final-emoji">🎓</div>
+                <h2 class="text-4xl font-bold mb-4">Tổng kết bài tập</h2>
+                <p class="text-xl opacity-90">Bạn đã hoàn thành tất cả 3 bài tập!</p>
+            </div>
+
+            <!-- Overall Statistics -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 Thống kê tổng quan</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-blue-50 p-6 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-blue-600" id="total-questions">42</div>
+                        <div class="text-sm text-blue-700">Tổng câu hỏi</div>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-green-600" id="total-correct">0</div>
+                        <div class="text-sm text-green-700">Câu đúng</div>
+                    </div>
+                    <div class="bg-red-50 p-6 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-red-600" id="total-incorrect">0</div>
+                        <div class="text-sm text-red-700">Câu sai</div>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-purple-600" id="total-percentage">0%</div>
+                        <div class="text-sm text-purple-700">Tỷ lệ đúng</div>
+                    </div>
+                </div>
+
+                <!-- Individual Exercise Breakdown -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">📊 Bài 1: Sắp xếp</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Điểm:</span>
+                                <span class="font-bold" id="exercise1-score">0/20</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tỷ lệ:</span>
+                                <span class="font-bold" id="exercise1-percentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">📝 Bài 2: Điền chỗ trống</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Điểm:</span>
+                                <span class="font-bold" id="exercise2-score">0/10</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tỷ lệ:</span>
+                                <span class="font-bold" id="exercise2-percentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">🧮 Bài 3: Nâng cao</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Điểm:</span>
+                                <span class="font-bold" id="exercise3-score">0/12</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tỷ lệ:</span>
+                                <span class="font-bold" id="exercise3-percentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Error Analysis -->
+            <div id="error-analysis" class="bg-white rounded-lg shadow-lg p-8 mb-8 border-l-4 border-red-400">
+                <div class="flex items-center justify-center mb-6">
+                    <div class="text-4xl mr-3">❌</div>
+                    <h3 class="text-2xl font-bold text-gray-800">Phân tích chi tiết các câu sai</h3>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <p class="text-red-800 font-medium text-center">
+                        💡 Xem lại các câu trả lời sai để học hỏi và cải thiện
+                    </p>
+                </div>
+                <div id="error-details">
+                    <!-- Error details will be populated here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">🔄 Nạp lại bài tập</h3>
+                <p class="text-gray-600 mb-6">Chọn bài tập bạn muốn làm lại để cải thiện điểm số</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button onclick="reloadAllExercises()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-4 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <div class="text-2xl mb-2">🔄</div>
+                        <div class="font-bold">Nạp lại tất cả</div>
+                        <div class="text-sm opacity-90">Làm lại cả 3 bài tập</div>
+                    </button>
+                    <button onclick="showExerciseSelection()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <div class="text-2xl mb-2">📚</div>
+                        <div class="font-bold">Chọn bài cụ thể</div>
+                        <div class="text-sm opacity-90">Làm lại từng bài riêng</div>
+                    </button>
+                </div>
+                
+                <button onclick="printResults()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg">
+                    🖨️ In báo cáo kết quả
+                </button>
+            </div>
+        </div>
+
+        <!-- Exercise Selection Modal -->
+        <div id="exercise-selection-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Chọn bài tập để làm lại</h3>
+                <div class="space-y-4">
+                    <button onclick="reloadSpecificExercise(1)" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg font-medium transition-colors text-left">
+                        📊 Bài 1: Sắp xếp theo thứ tự tăng dần
+                    </button>
+                    <button onclick="reloadSpecificExercise(2)" class="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-medium transition-colors text-left">
+                        📝 Bài 2: Điền vào chỗ trống
+                    </button>
+                    <button onclick="reloadSpecificExercise(3)" class="w-full bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg font-medium transition-colors text-left">
+                        🧮 Bài 3: Bài tập nâng cao
+                    </button>
+                </div>
+                <div class="mt-6 text-center">
+                    <button onclick="closeExerciseSelection()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const expressions = [
+            { text: "Tìm số chục của số 120", value: 2 },
+            { text: "Tìm số tự nhiên liền trước số 1", value: 0 },
+            { text: "97", value: 97 },
+            { text: "Tìm số tự nhiên nhỏ nhất có hai chữ số", value: 10 },
+            { text: "Tìm chữ số hàng trăm của số 1786", value: 7 },
+            { text: "3", value: 3 },
+            { text: "Tìm số tự nhiên nhỏ nhất có số chục là 1, chữ số hàng đơn vị là 7", value: 17 },
+            { text: "Xác định giá trị trong hệ thập phân của số La Mã XVI", value: 16 },
+            { text: "Tìm số tự nhiên liền sau số 4", value: 5 },
+            { text: "Xác định giá trị trong hệ thập phân của số La Mã XIV", value: 14 },
+            { text: "Tìm chữ số hàng trăm của số 678", value: 6 },
+            { text: "22", value: 22 },
+            { text: "100", value: 100 },
+            { text: "Tìm số tự nhiên chẵn lớn nhất có hai chữ số", value: 98 },
+            { text: "Tìm số tự nhiên nhỏ nhất có hai chữ số giống nhau", value: 11 },
+            { text: "Tìm số tự nhiên liền trước số 9", value: 8 },
+            { text: "Tìm số nghìn của số 15925", value: 15 },
+            { text: "Tìm số tự nhiên lớn nhất có một chữ số", value: 9 },
+            { text: "19", value: 19 },
+            { text: "Xác định giá trị trong hệ thập phân của số La Mã XIII", value: 13 }
+        ];
+
+        let correctOrder = [];
+        let userInputs = [];
+        let filledCount = 0;
+
+        // Summary tracking variables
+        let exerciseResults = {
+            exercise1: { completed: false, correct: 0, total: 20, errors: [] },
+            exercise2: { completed: false, correct: 0, total: 10, errors: [] },
+            exercise3: { completed: false, correct: 0, total: 12, errors: [] }
+        };
+
+        function initGame() {
+            // Calculate correct order (sorted by value)
+            correctOrder = expressions
+                .map((expr, index) => ({ ...expr, originalIndex: index }))
+                .sort((a, b) => a.value - b.value)
+                .map(expr => expr.value);
+
+            // Create original table
+            const originalTable = document.getElementById('original-table');
+            originalTable.innerHTML = '';
+
+            expressions.forEach((expr, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'table-cell bg-gray-50 p-3 rounded-lg text-center min-h-[80px] flex flex-col justify-center';
+                
+                cell.innerHTML = `
+                    <div class="math-expression text-gray-800 mb-1">${expr.text}</div>
+                    <div class="text-xs text-blue-600 font-medium">Ô ${index + 1}</div>
+                `;
+
+                originalTable.appendChild(cell);
+            });
+
+            // Create input grid
+            const inputGrid = document.getElementById('input-grid');
+            inputGrid.innerHTML = '';
+            userInputs = [];
+            filledCount = 0;
+
+            for (let i = 0; i < 20; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'input-cell text-center';
+                
+                cell.innerHTML = `
+                    <div class="text-sm font-medium text-gray-600 mb-2">Thứ ${i + 1}</div>
+                    <input type="number" 
+                           class="w-full p-2 text-center rounded-lg outline-none" 
+                           placeholder="?"
+                           id="input-${i}"
+                           oninput="handleInput(${i})"
+                           onkeypress="handleKeyPress(event, ${i})">
+                `;
+
+                inputGrid.appendChild(cell);
+                userInputs.push('');
+            }
+
+            updateProgress();
+            updateCheckButton();
+        }
+
+        function handleInput(index) {
+            const input = document.getElementById(`input-${index}`);
+            const oldValue = userInputs[index];
+            const newValue = input.value.trim();
+            
+            userInputs[index] = newValue;
+            
+            // Update filled count
+            if (oldValue === '' && newValue !== '') {
+                filledCount++;
+            } else if (oldValue !== '' && newValue === '') {
+                filledCount--;
+            }
+            
+            updateProgress();
+            updateCheckButton();
+        }
+
+        function handleKeyPress(event, index) {
+            if (event.key === 'Enter') {
+                // Move to next input
+                const nextIndex = index + 1;
+                if (nextIndex < 20) {
+                    document.getElementById(`input-${nextIndex}`).focus();
+                } else {
+                    // Last input, check if all filled and auto-check
+                    if (filledCount === 20) {
+                        checkAnswers();
+                    }
+                }
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const percentage = (filledCount / 20) * 100;
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${filledCount}/20`;
+        }
+
+        function updateCheckButton() {
+            const checkBtn = document.getElementById('check-btn');
+            checkBtn.disabled = filledCount < 20;
+        }
+
+        function checkAnswers() {
+            let correctCount = 0;
+            let errors = [];
+            
+            for (let i = 0; i < 20; i++) {
+                const input = document.getElementById(`input-${i}`);
+                const cell = input.parentElement;
+                const userValue = parseInt(userInputs[i]);
+                const correctValue = correctOrder[i];
+                
+                // Remove previous classes
+                cell.classList.remove('correct', 'incorrect');
+                
+                if (userValue === correctValue) {
+                    cell.classList.add('correct');
+                    correctCount++;
+                } else {
+                    cell.classList.add('incorrect');
+                    // Show correct answer
+                    input.placeholder = `Đúng: ${correctValue}`;
+                    errors.push({
+                        question: `Vị trí thứ ${i + 1}`,
+                        userAnswer: userValue || 'Không điền',
+                        correctAnswer: correctValue,
+                        explanation: `Giá trị đúng ở vị trí thứ ${i + 1} là ${correctValue}`
+                    });
+                }
+            }
+            
+            // Update exercise results
+            exerciseResults.exercise1.completed = true;
+            exerciseResults.exercise1.correct = correctCount;
+            exerciseResults.exercise1.errors = errors;
+            
+            showResults(correctCount);
+            checkAllExercisesCompleted();
+        }
+
+        function showResults(correctCount) {
+            const incorrectCount = 20 - correctCount;
+            const percentage = Math.round((correctCount / 20) * 100);
+            
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('incorrect-count').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+            
+            let emoji = '🎉';
+            let message = '';
+            
+            if (percentage === 100) {
+                emoji = '🏆';
+                message = 'Hoàn hảo! Bạn đã sắp xếp đúng tất cả!';
+            } else if (percentage >= 90) {
+                emoji = '🎉';
+                message = 'Xuất sắc! Kết quả rất tốt!';
+            } else if (percentage >= 80) {
+                emoji = '👍';
+                message = 'Tốt lắm! Hãy cố gắng thêm!';
+            } else if (percentage >= 70) {
+                emoji = '📚';
+                message = 'Khá tốt! Cần ôn tập thêm!';
+            } else {
+                emoji = '💪';
+                message = 'Hãy thử lại và cẩn thận hơn!';
+            }
+            
+            document.getElementById('result-emoji').textContent = emoji;
+            document.getElementById('score-text').textContent = message;
+            document.getElementById('results').classList.remove('hidden');
+            
+            // Disable check button
+            document.getElementById('check-btn').disabled = true;
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetGame() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('check-btn').disabled = false;
+            initGame();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize game on page load
+        initGame();
+
+        // Slide 2 Variables
+        const mathProblems = [
+            { problem: "Giá trị tương ứng trong hệ thập phân của số La Mã XIX là", answer: 19 },
+            { problem: "Số tự nhiên nhỏ nhất có ba chữ số là", answer: 100 },
+            { problem: "Số lần xuất hiện chữ số 0 khi viết tất cả các số tự nhiên từ 1 đến 100 là", answer: 11 },
+            { problem: "Giá trị tương ứng trong hệ thập phân của số La Mã XXXIV là", answer: 34 },
+            { problem: "Số các số có ba chữ số đôi một khác nhau, được viết bởi các chữ số 6, 7, 8 là", answer: 6 },
+            { problem: "Số tự nhiên lớn nhất có ba chữ số đôi một khác nhau là", answer: 987 },
+            { problem: "Số các số có hai chữ số khác nhau, được viết bởi các chữ số 0, 1, 2 là", answer: 4 },
+            { problem: "Cho hai số tự nhiên a và b thỏa mãn 12 < a < b < 16. Số cặp số a và b thỏa mãn là", answer: 3 },
+            { problem: "Số lớn nhất được lập bởi năm chữ số 9, 0, 6, 1, 5, trong đó mỗi chữ số chỉ được viết đúng một lần là", answer: 96510 },
+            { problem: "Người ta viết liên nhau các số tự nhiên từ 1 đến 99. Khi đó chữ số 5 được viết", answer: 20 }
+        ];
+
+        let mathUserInputs = [];
+        let mathFilledCount = 0;
+
+        // Slide Navigation
+        function showSlide(slideNumber) {
+            // Hide all slides
+            document.getElementById('slide1').classList.add('hidden');
+            document.getElementById('slide2').classList.add('hidden');
+            document.getElementById('slide3').classList.add('hidden');
+            
+            // Show selected slide
+            document.getElementById(`slide${slideNumber}`).classList.remove('hidden');
+            
+            // Update button states
+            document.getElementById('slide1-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide1-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('slide2-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide2-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('slide3-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide3-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            
+            document.getElementById(`slide${slideNumber}-btn`).classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById(`slide${slideNumber}-btn`).classList.add('bg-blue-500', 'text-white');
+            
+            // Initialize slides if needed
+            if (slideNumber === 2 && mathUserInputs.length === 0) {
+                initMathGame();
+            }
+            if (slideNumber === 3 && advancedUserInputs.length === 0) {
+                initAdvancedGame();
+            }
+        }
+
+        function initMathGame() {
+            const mathProblemsContainer = document.getElementById('math-problems');
+            mathProblemsContainer.innerHTML = '';
+            mathUserInputs = [];
+            mathFilledCount = 0;
+
+            mathProblems.forEach((problem, index) => {
+                const problemDiv = document.createElement('div');
+                problemDiv.className = 'bg-gray-50 p-4 rounded-lg border-2 border-gray-200 transition-all duration-200 hover:border-green-400';
+                
+                problemDiv.innerHTML = `
+                    <div class="text-left">
+                        <div class="text-sm font-medium text-gray-600 mb-2">Câu ${index + 1}:</div>
+                        <div class="text-base text-gray-800 mb-3 leading-relaxed">${problem.problem} <span class="font-bold text-blue-600">.............</span></div>
+                        <input type="number" 
+                               class="w-full p-3 text-center text-lg rounded-lg border-2 border-gray-300 outline-none transition-all duration-200 focus:border-green-500 focus:shadow-lg" 
+                               placeholder="Điền đáp án"
+                               id="math-input-${index}"
+                               oninput="handleMathInput(${index})"
+                               onkeypress="handleMathKeyPress(event, ${index})">
+                    </div>
+                `;
+
+                mathProblemsContainer.appendChild(problemDiv);
+                mathUserInputs.push('');
+            });
+
+            updateMathProgress();
+            updateMathCheckButton();
+        }
+
+        function handleMathInput(index) {
+            const input = document.getElementById(`math-input-${index}`);
+            const oldValue = mathUserInputs[index];
+            const newValue = input.value.trim();
+            
+            mathUserInputs[index] = newValue;
+            
+            // Update filled count
+            if (oldValue === '' && newValue !== '') {
+                mathFilledCount++;
+            } else if (oldValue !== '' && newValue === '') {
+                mathFilledCount--;
+            }
+            
+            updateMathProgress();
+            updateMathCheckButton();
+        }
+
+        function handleMathKeyPress(event, index) {
+            if (event.key === 'Enter') {
+                const nextIndex = index + 1;
+                if (nextIndex < mathProblems.length) {
+                    document.getElementById(`math-input-${nextIndex}`).focus();
+                } else {
+                    if (mathFilledCount === mathProblems.length) {
+                        checkMathAnswers();
+                    }
+                }
+            }
+        }
+
+        function updateMathProgress() {
+            const progressBar = document.getElementById('progress-bar-2');
+            const progressText = document.getElementById('progress-text-2');
+            const percentage = (mathFilledCount / mathProblems.length) * 100;
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${mathFilledCount}/${mathProblems.length}`;
+        }
+
+        function updateMathCheckButton() {
+            const checkBtn = document.getElementById('check-btn-2');
+            checkBtn.disabled = mathFilledCount < mathProblems.length;
+        }
+
+        function checkMathAnswers() {
+            let correctCount = 0;
+            let errors = [];
+            
+            mathProblems.forEach((problem, index) => {
+                const input = document.getElementById(`math-input-${index}`);
+                const container = input.parentElement.parentElement;
+                const userValue = parseInt(mathUserInputs[index]);
+                const correctValue = problem.answer;
+                
+                // Remove previous classes
+                container.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+                
+                if (userValue === correctValue) {
+                    container.classList.add('border-green-500', 'bg-green-50');
+                    correctCount++;
+                } else {
+                    container.classList.add('border-red-500', 'bg-red-50');
+                    input.placeholder = `Đúng: ${correctValue}`;
+                    errors.push({
+                        question: `Câu ${index + 1}: ${problem.problem}`,
+                        userAnswer: userValue || 'Không điền',
+                        correctAnswer: correctValue,
+                        explanation: `Đáp án đúng là ${correctValue}`
+                    });
+                }
+            });
+            
+            // Update exercise results
+            exerciseResults.exercise2.completed = true;
+            exerciseResults.exercise2.correct = correctCount;
+            exerciseResults.exercise2.errors = errors;
+            
+            showMathResults(correctCount);
+            checkAllExercisesCompleted();
+        }
+
+        function showMathResults(correctCount) {
+            const incorrectCount = mathProblems.length - correctCount;
+            const percentage = Math.round((correctCount / mathProblems.length) * 100);
+            
+            document.getElementById('correct-count-2').textContent = correctCount;
+            document.getElementById('incorrect-count-2').textContent = incorrectCount;
+            document.getElementById('percentage-2').textContent = `${percentage}%`;
+            
+            let emoji = '🎉';
+            let message = '';
+            
+            if (percentage === 100) {
+                emoji = '🏆';
+                message = 'Hoàn hảo! Bạn đã tính đúng tất cả!';
+            } else if (percentage >= 90) {
+                emoji = '🎉';
+                message = 'Xuất sắc! Kỹ năng tính toán rất tốt!';
+            } else if (percentage >= 80) {
+                emoji = '👍';
+                message = 'Tốt lắm! Hãy cố gắng thêm!';
+            } else if (percentage >= 70) {
+                emoji = '📚';
+                message = 'Khá tốt! Cần luyện tập thêm!';
+            } else {
+                emoji = '💪';
+                message = 'Hãy thử lại và cẩn thận hơn!';
+            }
+            
+            document.getElementById('result-emoji-2').textContent = emoji;
+            document.getElementById('score-text-2').textContent = message;
+            document.getElementById('results-2').classList.remove('hidden');
+            
+            // Disable check button
+            document.getElementById('check-btn-2').disabled = true;
+            
+            // Scroll to results
+            document.getElementById('results-2').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetMathGame() {
+            document.getElementById('results-2').classList.add('hidden');
+            document.getElementById('check-btn-2').disabled = false;
+            initMathGame();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Slide 3 Variables
+        const advancedProblems = [
+            { problem: "Có bao nhiêu số tự nhiên có hai chữ số mà chữ số hàng chục lớn hơn chữ số hàng đơn vị?", answer: 45 },
+            { problem: "Hãy xác định số tự nhiên lớn nhất có ba chữ số.", answer: 999 },
+            { problem: "Có bao nhiêu số tự nhiên không vượt quá 78?", answer: 79 },
+            { problem: "Có bao nhiêu số tự nhiên lớn hơn 9 và không vượt quá 86?", answer: 77 },
+            { problem: "Hãy xác định số tự nhiên nhỏ nhất có ba chữ số khác nhau?", answer: 102 },
+            { problem: "Dùng ba chữ số 0, 5, 8 có thể viết được tất cả bao nhiêu số tự nhiên có hai chữ số?", answer: 4 },
+            { problem: "Hãy xác định số nhỏ nhất được lập từ năm chữ số 7, 0, 3, 1, 4, trong đó mỗi chữ số chỉ được viết đúng một lần.", answer: 10347 },
+            { problem: "Trong các số tự nhiên từ 100 đến 10000 có bao nhiêu số mà trong cách viết của nó có đúng ba chữ số giống nhau?", answer: 333 },
+            { problem: "Với hai chữ số La Mã: I và X, ta có thể viết được bao nhiêu số La Mã, trong đó mỗi chữ số có thể viết nhiều lần nhưng không viết liên nhau quá ba lần?", answer: 19 },
+            { problem: "Có bao nhiêu số tự nhiên không nhỏ hơn 13 và không lớn hơn 67?", answer: 55 },
+            { problem: "Có bao nhiêu số có năm chữ số?", answer: 90000 },
+            { problem: "Tìm một số có hai chữ số, biết rằng nếu cứ viết thêm chữ số 1 vào bên trái và bên phải số đó thì được một số có bốn chữ số, lớn gấp 23 lần số đã cho.", answer: 77 }
+        ];
+
+        let advancedUserInputs = [];
+        let advancedFilledCount = 0;
+
+        function initAdvancedGame() {
+            const advancedProblemsContainer = document.getElementById('advanced-problems');
+            advancedProblemsContainer.innerHTML = '';
+            advancedUserInputs = [];
+            advancedFilledCount = 0;
+
+            advancedProblems.forEach((problem, index) => {
+                const problemDiv = document.createElement('div');
+                problemDiv.className = 'bg-gray-50 p-4 rounded-lg border-2 border-gray-200 transition-all duration-200 hover:border-purple-400';
+                
+                problemDiv.innerHTML = `
+                    <div class="text-left">
+                        <div class="text-sm font-medium text-gray-600 mb-2">Câu ${index + 1}:</div>
+                        <div class="text-base text-gray-800 mb-3 leading-relaxed">${problem.problem}</div>
+                        <div class="text-sm text-purple-600 font-medium mb-2">Đáp án: <span class="font-bold text-purple-600">.............</span></div>
+                        <input type="number" 
+                               class="w-full p-3 text-center text-lg rounded-lg border-2 border-gray-300 outline-none transition-all duration-200 focus:border-purple-500 focus:shadow-lg" 
+                               placeholder="Điền đáp án"
+                               id="advanced-input-${index}"
+                               oninput="handleAdvancedInput(${index})"
+                               onkeypress="handleAdvancedKeyPress(event, ${index})">
+                    </div>
+                `;
+
+                advancedProblemsContainer.appendChild(problemDiv);
+                advancedUserInputs.push('');
+            });
+
+            updateAdvancedProgress();
+            updateAdvancedCheckButton();
+        }
+
+        function handleAdvancedInput(index) {
+            const input = document.getElementById(`advanced-input-${index}`);
+            const oldValue = advancedUserInputs[index];
+            const newValue = input.value.trim();
+            
+            advancedUserInputs[index] = newValue;
+            
+            // Update filled count
+            if (oldValue === '' && newValue !== '') {
+                advancedFilledCount++;
+            } else if (oldValue !== '' && newValue === '') {
+                advancedFilledCount--;
+            }
+            
+            updateAdvancedProgress();
+            updateAdvancedCheckButton();
+        }
+
+        function handleAdvancedKeyPress(event, index) {
+            if (event.key === 'Enter') {
+                const nextIndex = index + 1;
+                if (nextIndex < advancedProblems.length) {
+                    document.getElementById(`advanced-input-${nextIndex}`).focus();
+                } else {
+                    if (advancedFilledCount === advancedProblems.length) {
+                        checkAdvancedAnswers();
+                    }
+                }
+            }
+        }
+
+        function updateAdvancedProgress() {
+            const progressBar = document.getElementById('progress-bar-3');
+            const progressText = document.getElementById('progress-text-3');
+            const percentage = (advancedFilledCount / advancedProblems.length) * 100;
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${advancedFilledCount}/${advancedProblems.length}`;
+        }
+
+        function updateAdvancedCheckButton() {
+            const checkBtn = document.getElementById('check-btn-3');
+            checkBtn.disabled = advancedFilledCount < advancedProblems.length;
+        }
+
+        function checkAdvancedAnswers() {
+            let correctCount = 0;
+            let errors = [];
+            
+            advancedProblems.forEach((problem, index) => {
+                const input = document.getElementById(`advanced-input-${index}`);
+                const container = input.parentElement.parentElement;
+                const userValue = parseInt(advancedUserInputs[index]);
+                const correctValue = problem.answer;
+                
+                // Remove previous classes
+                container.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+                
+                if (userValue === correctValue) {
+                    container.classList.add('border-green-500', 'bg-green-50');
+                    correctCount++;
+                } else {
+                    container.classList.add('border-red-500', 'bg-red-50');
+                    input.placeholder = `Đúng: ${correctValue}`;
+                    errors.push({
+                        question: `Câu ${index + 1}: ${problem.problem}`,
+                        userAnswer: userValue || 'Không điền',
+                        correctAnswer: correctValue,
+                        explanation: `Đáp án đúng là ${correctValue}`
+                    });
+                }
+            });
+            
+            // Update exercise results
+            exerciseResults.exercise3.completed = true;
+            exerciseResults.exercise3.correct = correctCount;
+            exerciseResults.exercise3.errors = errors;
+            
+            showAdvancedResults(correctCount);
+            checkAllExercisesCompleted();
+        }
+
+        function showAdvancedResults(correctCount) {
+            const incorrectCount = advancedProblems.length - correctCount;
+            const percentage = Math.round((correctCount / advancedProblems.length) * 100);
+            
+            document.getElementById('correct-count-3').textContent = correctCount;
+            document.getElementById('incorrect-count-3').textContent = incorrectCount;
+            document.getElementById('percentage-3').textContent = `${percentage}%`;
+            
+            let emoji = '🎉';
+            let message = '';
+            
+            if (percentage === 100) {
+                emoji = '🏆';
+                message = 'Xuất sắc! Bạn đã giải đúng tất cả bài khó!';
+            } else if (percentage >= 90) {
+                emoji = '🎉';
+                message = 'Tuyệt vời! Kỹ năng giải toán rất tốt!';
+            } else if (percentage >= 80) {
+                emoji = '👍';
+                message = 'Rất tốt! Hãy tiếp tục cố gắng!';
+            } else if (percentage >= 70) {
+                emoji = '📚';
+                message = 'Khá tốt! Cần luyện tập thêm các dạng khó!';
+            } else {
+                emoji = '💪';
+                message = 'Đây là những bài khó, hãy thử lại!';
+            }
+            
+            document.getElementById('result-emoji-3').textContent = emoji;
+            document.getElementById('score-text-3').textContent = message;
+            document.getElementById('results-3').classList.remove('hidden');
+            
+            // Disable check button
+            document.getElementById('check-btn-3').disabled = true;
+            
+            // Scroll to results
+            document.getElementById('results-3').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetAdvancedGame() {
+            document.getElementById('results-3').classList.add('hidden');
+            document.getElementById('check-btn-3').disabled = false;
+            initAdvancedGame();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Summary and utility functions
+        function checkAllExercisesCompleted() {
+            const allCompleted = exerciseResults.exercise1.completed && 
+                               exerciseResults.exercise2.completed && 
+                               exerciseResults.exercise3.completed;
+            
+            if (allCompleted) {
+                document.getElementById('summary-btn').classList.remove('hidden');
+            }
+        }
+
+        function showFinalSummary() {
+            // Hide all slides
+            document.getElementById('slide1').classList.add('hidden');
+            document.getElementById('slide2').classList.add('hidden');
+            document.getElementById('slide3').classList.add('hidden');
+            document.getElementById('final-summary').classList.remove('hidden');
+            
+            // Update navigation buttons
+            document.getElementById('slide1-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide1-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('slide2-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide2-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('slide3-btn').classList.remove('bg-blue-500', 'text-white');
+            document.getElementById('slide3-btn').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('summary-btn').classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            document.getElementById('summary-btn').classList.add('bg-blue-500', 'text-white');
+            
+            updateFinalSummary();
+        }
+
+        function updateFinalSummary() {
+            // Calculate totals
+            const totalCorrect = exerciseResults.exercise1.correct + 
+                               exerciseResults.exercise2.correct + 
+                               exerciseResults.exercise3.correct;
+            const totalQuestions = exerciseResults.exercise1.total + 
+                                 exerciseResults.exercise2.total + 
+                                 exerciseResults.exercise3.total;
+            const totalIncorrect = totalQuestions - totalCorrect;
+            const totalPercentage = Math.round((totalCorrect / totalQuestions) * 100);
+            
+            // Update overall statistics
+            document.getElementById('total-correct').textContent = totalCorrect;
+            document.getElementById('total-incorrect').textContent = totalIncorrect;
+            document.getElementById('total-percentage').textContent = `${totalPercentage}%`;
+            
+            // Update individual exercise scores
+            document.getElementById('exercise1-score').textContent = 
+                `${exerciseResults.exercise1.correct}/${exerciseResults.exercise1.total}`;
+            document.getElementById('exercise1-percentage').textContent = 
+                `${Math.round((exerciseResults.exercise1.correct / exerciseResults.exercise1.total) * 100)}%`;
+            
+            document.getElementById('exercise2-score').textContent = 
+                `${exerciseResults.exercise2.correct}/${exerciseResults.exercise2.total}`;
+            document.getElementById('exercise2-percentage').textContent = 
+                `${Math.round((exerciseResults.exercise2.correct / exerciseResults.exercise2.total) * 100)}%`;
+            
+            document.getElementById('exercise3-score').textContent = 
+                `${exerciseResults.exercise3.correct}/${exerciseResults.exercise3.total}`;
+            document.getElementById('exercise3-percentage').textContent = 
+                `${Math.round((exerciseResults.exercise3.correct / exerciseResults.exercise3.total) * 100)}%`;
+            
+            // Update final emoji based on overall performance
+            let finalEmoji = '🎓';
+            if (totalPercentage === 100) finalEmoji = '🏆';
+            else if (totalPercentage >= 90) finalEmoji = '🎉';
+            else if (totalPercentage >= 80) finalEmoji = '👍';
+            else if (totalPercentage >= 70) finalEmoji = '📚';
+            else finalEmoji = '💪';
+            
+            document.getElementById('final-emoji').textContent = finalEmoji;
+            
+            // Generate error analysis
+            generateErrorAnalysis();
+        }
+
+        function generateErrorAnalysis() {
+            const errorDetails = document.getElementById('error-details');
+            const allErrors = [
+                ...exerciseResults.exercise1.errors.map(e => ({...e, exercise: 'Bài 1: Sắp xếp'})),
+                ...exerciseResults.exercise2.errors.map(e => ({...e, exercise: 'Bài 2: Điền chỗ trống'})),
+                ...exerciseResults.exercise3.errors.map(e => ({...e, exercise: 'Bài 3: Nâng cao'}))
+            ];
+            
+            if (allErrors.length === 0) {
+                errorDetails.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-8xl mb-6">🏆</div>
+                        <h4 class="text-3xl font-bold text-green-600 mb-4">Xuất sắc! Không có câu nào sai!</h4>
+                        <p class="text-xl text-gray-600 mb-4">Bạn đã làm đúng tất cả 42 câu hỏi!</p>
+                        <div class="bg-green-100 border border-green-300 rounded-lg p-4 inline-block">
+                            <p class="text-green-800 font-medium">🎯 Điểm số hoàn hảo: 100%</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Add summary statistics for errors
+            errorDetails.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-center space-x-8">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600">${allErrors.length}</div>
+                            <div class="text-sm text-red-700">Tổng câu sai</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">${42 - allErrors.length}</div>
+                            <div class="text-sm text-green-700">Câu đúng</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">${Math.round(((42 - allErrors.length) / 42) * 100)}%</div>
+                            <div class="text-sm text-blue-700">Tỷ lệ chính xác</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            let errorHtml = errorDetails.innerHTML + '<div class="space-y-6">';
+            
+            // Group errors by exercise
+            const errorsByExercise = {
+                'Bài 1: Sắp xếp': allErrors.filter(e => e.exercise === 'Bài 1: Sắp xếp'),
+                'Bài 2: Điền chỗ trống': allErrors.filter(e => e.exercise === 'Bài 2: Điền chỗ trống'),
+                'Bài 3: Nâng cao': allErrors.filter(e => e.exercise === 'Bài 3: Nâng cao')
+            };
+            
+            Object.entries(errorsByExercise).forEach(([exerciseName, errors]) => {
+                if (errors.length > 0) {
+                    const exerciseIcon = exerciseName.includes('Bài 1') ? '📊' : 
+                                       exerciseName.includes('Bài 2') ? '📝' : '🧮';
+                    
+                    errorHtml += `
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 shadow-sm">
+                            <div class="flex items-center mb-4">
+                                <div class="text-2xl mr-3">${exerciseIcon}</div>
+                                <h4 class="text-xl font-bold text-red-800">${exerciseName}</h4>
+                                <div class="ml-auto bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-bold">
+                                    ${errors.length} câu sai
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                    `;
+                    
+                    errors.forEach((error, index) => {
+                        errorHtml += `
+                            <div class="bg-white p-4 rounded-lg border border-red-200 shadow-sm hover:shadow-md transition-all duration-200">
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                        <span class="text-red-600 font-bold text-sm">${index + 1}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-800 mb-3">${error.question}</div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                            <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-400">
+                                                <div class="text-xs text-red-700 font-medium mb-1">❌ Câu trả lời của bạn:</div>
+                                                <div class="text-red-600 font-bold text-lg">${error.userAnswer}</div>
+                                            </div>
+                                            <div class="bg-green-50 p-3 rounded-lg border-l-4 border-green-400">
+                                                <div class="text-xs text-green-700 font-medium mb-1">✅ Đáp án đúng:</div>
+                                                <div class="text-green-600 font-bold text-lg">${error.correctAnswer}</div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                            <div class="text-sm text-blue-800">
+                                                <span class="font-bold">💡 Giải thích:</span> ${error.explanation}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    errorHtml += '</div></div>';
+                }
+            });
+            
+            errorHtml += '</div>';
+            errorDetails.innerHTML = errorHtml;
+        }
+
+        function reloadAllExercises() {
+            // Reset all exercise results
+            exerciseResults = {
+                exercise1: { completed: false, correct: 0, total: 20, errors: [] },
+                exercise2: { completed: false, correct: 0, total: 10, errors: [] },
+                exercise3: { completed: false, correct: 0, total: 12, errors: [] }
+            };
+            
+            // Hide summary button
+            document.getElementById('summary-btn').classList.add('hidden');
+            
+            // Reset all exercises
+            resetGame();
+            resetMathGame();
+            resetAdvancedGame();
+            
+            // Show first slide
+            showSlide(1);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showExerciseSelection() {
+            document.getElementById('exercise-selection-modal').classList.remove('hidden');
+        }
+
+        function closeExerciseSelection() {
+            document.getElementById('exercise-selection-modal').classList.add('hidden');
+        }
+
+        function reloadSpecificExercise(exerciseNumber) {
+            // Reset specific exercise
+            if (exerciseNumber === 1) {
+                exerciseResults.exercise1 = { completed: false, correct: 0, total: 20, errors: [] };
+                resetGame();
+                showSlide(1);
+            } else if (exerciseNumber === 2) {
+                exerciseResults.exercise2 = { completed: false, correct: 0, total: 10, errors: [] };
+                resetMathGame();
+                showSlide(2);
+            } else if (exerciseNumber === 3) {
+                exerciseResults.exercise3 = { completed: false, correct: 0, total: 12, errors: [] };
+                resetAdvancedGame();
+                showSlide(3);
+            }
+            
+            closeExerciseSelection();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function printResults() {
+            // Create a printable version
+            const printWindow = window.open('', '_blank');
+            const totalCorrect = exerciseResults.exercise1.correct + 
+                               exerciseResults.exercise2.correct + 
+                               exerciseResults.exercise3.correct;
+            const totalQuestions = 42;
+            const totalPercentage = Math.round((totalCorrect / totalQuestions) * 100);
+            
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Kết quả bài tập</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+                        .stat-box { text-align: center; padding: 10px; border: 1px solid #ccc; }
+                        .errors { margin-top: 30px; }
+                        .error-item { margin: 10px 0; padding: 10px; background: #f9f9f9; border-left: 4px solid #ff4444; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Kết quả bài tập toán học</h1>
+                        <p>Ngày: ${new Date().toLocaleDateString('vi-VN')}</p>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <h3>Tổng điểm</h3>
+                            <p>${totalCorrect}/${totalQuestions}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>Tỷ lệ đúng</h3>
+                            <p>${totalPercentage}%</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Chi tiết từng bài:</h2>
+                    <p>Bài 1: ${exerciseResults.exercise1.correct}/20 (${Math.round((exerciseResults.exercise1.correct/20)*100)}%)</p>
+                    <p>Bài 2: ${exerciseResults.exercise2.correct}/10 (${Math.round((exerciseResults.exercise2.correct/10)*100)}%)</p>
+                    <p>Bài 3: ${exerciseResults.exercise3.correct}/12 (${Math.round((exerciseResults.exercise3.correct/12)*100)}%)</p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ce369a4513166a',t:'MTc1NzQ5OTg0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
